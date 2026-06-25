@@ -80,5 +80,11 @@
 		<string>fetch</string>
 		<string>processing</string>
 	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Needed to browse and download from local network servers.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+	</array>
 </dict>
 </plist>
