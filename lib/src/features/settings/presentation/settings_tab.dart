@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../logic/security_service.dart';
+import '../logic/theme_provider.dart';
 
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
@@ -8,6 +9,8 @@ class SettingsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final security = ref.watch(securityServiceProvider);
+    final themeBrightness = ref.watch(themeProvider);
+    final isDark = themeBrightness == Brightness.dark;
 
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
@@ -16,6 +19,34 @@ class SettingsTab extends ConsumerWidget {
       child: SafeArea(
         child: ListView(
           children: [
+            CupertinoFormSection.insetGrouped(
+              header: const Text('APPEARANCE'),
+              children: [
+                CupertinoListTile(
+                  title: const Text('Dark Mode'),
+                  trailing: CupertinoSwitch(
+                    value: isDark,
+                    onChanged: (val) {
+                      ref.read(themeProvider.notifier).toggleTheme(val);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            CupertinoFormSection.insetGrouped(
+              header: const Text('SECURITY'),
+              children: [
+                CupertinoListTile(
+                  title: const Text('Dark Mode'),
+                  trailing: CupertinoSwitch(
+                    value: isDark,
+                    onChanged: (val) {
+                      ref.read(themeProvider.notifier).toggleTheme(val);
+                    },
+                  ),
+                ),
+              ],
+            ),
             CupertinoFormSection.insetGrouped(
               header: const Text('SECURITY'),
               children: [
@@ -41,10 +72,6 @@ class SettingsTab extends ConsumerWidget {
                 const CupertinoListTile(
                   title: Text('Retry Count'),
                   trailing: Text('5'),
-                ),
-                CupertinoListTile(
-                  title: const Text('Dark Mode'),
-                  trailing: CupertinoSwitch(value: true, onChanged: (v) {}),
                 ),
               ],
             ),
