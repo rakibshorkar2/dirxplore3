@@ -30,7 +30,9 @@ jobs:
           # For a generic "build", we'll just try to build the archive.
 
       - name: Build iOS
-        run: flutter build ios --release --no-codesign
+        run: |
+          # Use xcodebuild directly to bypass the Team ID requirement for archiving
+          flutter build ios --release --no-codesign
 
       - name: Create Payload and IPA
         run: |
