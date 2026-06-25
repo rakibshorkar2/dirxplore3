@@ -31,14 +31,14 @@ jobs:
 
       - name: Build iOS
         run: |
-          # Use xcodebuild directly to bypass the Team ID requirement for archiving
-          flutter build ios --release --no-codesign
+          flutter build ios --release --no-codesign --archs=arm64
 
       - name: Create Payload and IPA
         run: |
-          mkdir Payload
+          mkdir -p Payload
           cp -Rp build/ios/iphoneos/Runner.app Payload/
-          zip -r -y DirXplore.ipa Payload
+          # ditto is more reliable on macOS for preserving app bundle integrity
+          ditto -c -k --sequesterRsrc --keepParent Payload DirXplore.ipa
           mv DirXplore.ipa build/ios/iphoneos/
           
       - name: Upload IPA
