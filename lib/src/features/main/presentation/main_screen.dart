@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import '../../settings/logic/security_service.dart';
 
+import 'glassy_nav_bar.dart';
+
 class MainScreen extends ConsumerStatefulWidget {
   final Widget child;
   const MainScreen({super.key, required this.child});
@@ -48,29 +50,22 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     return CupertinoPageScaffold(
       child: Stack(
         children: [
-          widget.child,
+          Positioned.fill(child: widget.child),
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: CupertinoTabBar(
-                  currentIndex: _calculateSelectedIndex(context),
-                  onTap: (index) => _onItemTapped(index, context),
-                  backgroundColor: CupertinoColors.systemBackground.withAlpha(128),
-                  activeColor: CupertinoColors.activeBlue,
-                  items: const [
-                    BottomNavigationBarItem(icon: Icon(CupertinoIcons.globe), label: 'Browser'),
-                    BottomNavigationBarItem(icon: Icon(CupertinoIcons.compass), label: 'Web'),
-                    BottomNavigationBarItem(icon: Icon(CupertinoIcons.cloud_download), label: 'Downloads'),
-                    BottomNavigationBarItem(icon: Icon(CupertinoIcons.shield), label: 'Proxy'),
-                    BottomNavigationBarItem(icon: Icon(CupertinoIcons.folder), label: 'Files'),
-                    BottomNavigationBarItem(icon: Icon(CupertinoIcons.settings), label: 'Settings'),
-                  ],
-                ),
-              ),
+            child: GlassyNavBar(
+              currentIndex: _calculateSelectedIndex(context),
+              onTap: (index) => _onItemTapped(index, context),
+              items: const [
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.globe), label: 'Browser'),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.compass), label: 'Web'),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.cloud_download), label: 'Downloads'),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.shield), label: 'Proxy'),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.folder), label: 'Files'),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.settings), label: 'Settings'),
+              ],
             ),
           ),
         ],

@@ -23,6 +23,12 @@ class DirXploreApp extends ConsumerWidget {
       theme: CupertinoThemeData(
         brightness: themeBrightness,
         primaryColor: CupertinoColors.activeBlue,
+        scaffoldBackgroundColor: themeBrightness == Brightness.dark 
+            ? CupertinoColors.black 
+            : const CupertinoDynamicColor.withBrightness(
+                color: CupertinoColors.systemGrey6,
+                darkColor: CupertinoColors.black,
+              ),
       ),
       routerConfig: goRouter,
       debugShowCheckedModeBanner: false,
