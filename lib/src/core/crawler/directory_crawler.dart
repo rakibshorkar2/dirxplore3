@@ -53,19 +53,32 @@ class DirectoryCrawler {
 
   DirectoryEntry? _parseRow(Element row, String baseUrl) {
     final columns = row.querySelectorAll('td');
+    
+    // Support for different column layouts (3 columns vs 4 columns)
     if (columns.length < 2) return null;
 
-    final link = columns[1].querySelector('a');
+    // SAMONLINE/BDIX servers often use the first or second column for the link
+    Element? link = columns.length > 1 ? columns[1].querySelector('a') : null;
+    link ??= row.querySelector('a'); // Fallback to any link in the row
+    
     if (link == null) return null;
 
     final name = link.text.trim();
-    if (name == 'Parent Directory' || name == '..') return null;
+    if (name == 'Parent Directory' || name == '..' || name.isEmpty) return null;
 
     final href = link.attributes['href'];
-    if (href == null) return null;
+    if (href == null || href.startsWith('?')) return null;
 
     final fullUrl = _resolveUrl(baseUrl, href);
-    final isDirectory = href.endsWith('/');
+    // BDIX servers sometimes don't end directories with / in the href, 
+    // but the icon or name might indicate it.
+    bool isDirectory = href.endsWith('/');
+    
+    // Check for folder icons or clues in the row if href is ambiguous
+    final text = row.text.toLowerCase();
+    if (!isDirectory && (text.contains('folder') || text.contains('dir'))) {
+      isDirectory = true;
+    }
     
     String? size;
     String? lastModified;
