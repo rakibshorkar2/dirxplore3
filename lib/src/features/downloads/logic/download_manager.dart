@@ -51,12 +51,22 @@ class DownloadManager extends StateNotifier<List<DownloadTask>> {
   static const _channel = MethodChannel('com.dirxplore.app/downloads');
   final Map<int, DateTime> _lastUpdateTimes = {};
   final Map<int, int> _lastBytes = {};
+  int _maxParallel = 3;
 
   DownloadManager() : super([]) {
     _channel.setMethodCallHandler(_handleNativeCall);
   }
 
+  void setMaxParallel(int count) => _maxParallel = count;
+
   Future<void> startDownload(String url) async {
+    // Check parallel limit
+    final active = state.where((t) => t.status == 'downloading').length;
+    if (active >= _maxParallel) {
+      state = [...state, DownloadTask(id: -1, url: url, status: 'queued')];
+      return;
+    }
+
     try {
       final int taskId = await _channel.invokeMethod('startDownload', {'url': url});
       state = [...state, DownloadTask(
@@ -70,8 +80,11 @@ class DownloadManager extends StateNotifier<List<DownloadTask>> {
     }
   }
 
-  Future<void> pauseDownload(int taskId) async {
-    await _channel.invokeMethod('pauseDownload', {'taskId': taskId});
+  Future<void> resumeTask(int taskId) async {
+    final int? newId = await _channel.invokeMethod('resumeDownload', {'taskId': taskId});
+    if (newId != null) {
+      _updateTask(taskId, status: 'downloading');
+    }
   }
 
   Future<dynamic> _handleNativeCall(MethodCall call) async {

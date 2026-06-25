@@ -39,17 +39,45 @@ import Flutter
             if let args = call.arguments as? [String: Any],
                let taskId = args["taskId"] as? Int,
                let task = activeDownloads[taskId] {
-                task.cancel(byProducingResumeData: { resumeData in
-                    // In a real app, save resumeData to Disk/CoreData
-                    self.channel.invokeMethod("onDownloadPaused", arguments: ["taskId": taskId, "hasResumeData": resumeData != nil])
+                task.cancel(byProducingResumeData: { [weak self] resumeData in
+                    if let data = resumeData {
+                        self?.saveResumeData(data, forTask: taskId)
+                    }
+                    self?.channel.invokeMethod("onDownloadPaused", arguments: ["taskId": taskId, "hasResumeData": resumeData != nil])
                 })
                 result(true)
             } else {
                 result(false)
             }
+        case "resumeDownload":
+            if let args = call.arguments as? [String: Any],
+               let taskId = args["taskId"] as? Int,
+               let data = loadResumeData(forTask: taskId) {
+                let task = session.downloadTask(withResumeData: data)
+                activeDownloads[task.taskIdentifier] = task
+                task.resume()
+                result(task.taskIdentifier)
+            } else {
+                result(nil)
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    private func saveResumeData(_ data: Data, forTask id: Int) {
+        let path = getResumePath(forTask: id)
+        try? data.write(to: path)
+    }
+
+    private func loadResumeData(forTask id: Int) -> Data? {
+        let path = getResumePath(forTask: id)
+        return try? Data(contentsOf: path)
+    }
+
+    private func getResumePath(forTask id: Int) -> URL {
+        let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        return cacheDir.appendingPathComponent("resume_\(id).dat")
     }
 
     // MARK: - URLSessionDownloadDelegate

@@ -87,6 +87,24 @@ class DownloadTab extends ConsumerWidget {
                             ],
                           ),
                         ],
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (task.status == 'downloading')
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                child: const Icon(CupertinoIcons.pause_fill, size: 20),
+                                onPressed: () => ref.read(downloadManagerProvider.notifier).pauseDownload(task.id),
+                              )
+                            else if (task.status == 'paused')
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                child: const Icon(CupertinoIcons.play_arrow_fill, size: 20),
+                                onPressed: () => ref.read(downloadManagerProvider.notifier).resumeTask(task.id),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
                   );
