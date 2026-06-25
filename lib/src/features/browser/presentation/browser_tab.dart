@@ -55,10 +55,27 @@ class _BrowserTabState extends ConsumerState<BrowserTab> {
             showCupertinoModalPopup(
               context: context,
               builder: (context) => CupertinoActionSheet(
-                title: const Text('Deep Scan'),
-                message: const Text('Search for all files in subdirectories (up to 3 levels)'),
+                title: const Text('Quick Access & Tools'),
+                message: const Text('Select a server or scan mode'),
                 actions: [
                   CupertinoActionSheetAction(
+                    child: const Text('SAMONLINE (172.16.50.4)'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _urlController.text = 'http://172.16.50.4/';
+                      _fetch();
+                    },
+                  ),
+                  CupertinoActionSheetAction(
+                    child: const Text('CircleFTP (new.circleftp.net)'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _urlController.text = 'http://new.circleftp.net/';
+                      _fetch();
+                    },
+                  ),
+                  CupertinoActionSheetAction(
+                    isDefaultAction: true,
                     child: const Text('Start Deep Scan'),
                     onPressed: () async {
                       Navigator.pop(context);
