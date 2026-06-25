@@ -48,7 +48,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     return CupertinoPageScaffold(
       child: Stack(
         children: [
-          child,
+          widget.child,
           Positioned(
             bottom: 0,
             left: 0,

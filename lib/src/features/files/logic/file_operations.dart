@@ -13,8 +13,8 @@ class FileOperations {
   }
 
   static Future<void> extractArchive(String filePath) async {
-    final inputStream = InputFileStream(filePath);
-    final archive = ZipDecoder().decodeBuffer(inputStream);
+    final bytes = await File(filePath).readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
     final destinationDir = p.withoutExtension(filePath);
     
     for (final file in archive) {
