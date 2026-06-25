@@ -31,16 +31,24 @@ class DirectoryCrawler {
     final document = parse(response.body);
     final List<DirectoryEntry> entries = [];
 
-    // Common selectors for Apache/Nginx directory listings
+    // Common selectors for Apache/Nginx and modern BDIX directory listings
     final rows = document.querySelectorAll('tr');
+    final divs = document.querySelectorAll('.file, .folder, .item, [class*="file"], [class*="folder"]');
+    
     if (rows.isNotEmpty) {
-      // Typically skip the first row (header)
-      for (var i = 1; i < rows.length; i++) {
+      // Standard Table-based parsing
+      for (var i = 0; i < rows.length; i++) {
         final entry = _parseRow(rows[i], url);
         if (entry != null) entries.add(entry);
       }
+    } else if (divs.isNotEmpty) {
+      // Modern Grid/Div-based parsing (CircleFTP / DhakaFlix style)
+      for (final div in divs) {
+        final entry = _parseDiv(div, url);
+        if (entry != null) entries.add(entry);
+      }
     } else {
-      // Fallback for simple lists (e.g. <ul> or <pre>)
+      // Fallback for simple links
       final links = document.querySelectorAll('a');
       for (final link in links) {
         final entry = _parseLink(link, url);
@@ -49,6 +57,30 @@ class DirectoryCrawler {
     }
 
     return entries;
+  }
+
+  DirectoryEntry? _parseDiv(Element div, String baseUrl) {
+    final link = div.querySelector('a') ?? (div.localName == 'a' ? div : null);
+    if (link == null) return null;
+
+    final name = link.text.trim().isEmpty ? div.text.trim() : link.text.trim();
+    if (name.isEmpty || name == '..' || name == 'Parent Directory') return null;
+
+    final href = link.attributes['href'];
+    if (href == null || href.startsWith('?')) return null;
+
+    final fullUrl = _resolveUrl(baseUrl, href);
+    
+    // Detect directory based on class name or href
+    bool isDirectory = href.endsWith('/') || 
+                       div.className.contains('folder') || 
+                       div.innerHtml.toLowerCase().contains('folder');
+
+    return DirectoryEntry(
+      name: isDirectory ? name.replaceAll('/', '') : name,
+      url: fullUrl,
+      isDirectory: isDirectory,
+    );
   }
 
   DirectoryEntry? _parseRow(Element row, String baseUrl) {
