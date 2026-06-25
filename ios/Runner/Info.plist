@@ -79,9 +79,18 @@
 	<array>
 		<string>fetch</string>
 		<string>processing</string>
+		<string>audio</string>
 	</array>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Needed to save downloaded images and videos to your gallery.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Needed to play downloaded audio files.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Needed to browse and download from local network servers.</string>
+	<string>DirXplore needs access to your local network to discover and download from servers like 172.16.50.4.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_http._tcp</string>
