@@ -24,11 +24,15 @@ class _BrowserTabState extends ConsumerState<BrowserTab> {
       setState(() => _entries = entries);
     } catch (e) {
       if (!mounted) return;
+      String errorMsg = e.toString();
+      if (errorMsg.contains('Connection refused') || errorMsg.contains('errno = 61')) {
+        errorMsg = "Connection Refused.\n\nPlease ensure you are connected to a BDIX network to access this Bangladeshi server.";
+      }
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
-          title: const Text('Error'),
-          content: Text(e.toString()),
+          title: const Text('Connection Error'),
+          content: Text(errorMsg),
           actions: [
             CupertinoDialogAction(child: const Text('OK'), onPressed: () => Navigator.pop(context)),
           ],

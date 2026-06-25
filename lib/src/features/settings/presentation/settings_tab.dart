@@ -37,20 +37,6 @@ class SettingsTab extends ConsumerWidget {
               header: const Text('SECURITY'),
               children: [
                 CupertinoListTile(
-                  title: const Text('Dark Mode'),
-                  trailing: CupertinoSwitch(
-                    value: isDark,
-                    onChanged: (val) {
-                      ref.read(themeProvider.notifier).toggleTheme(val);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            CupertinoFormSection.insetGrouped(
-              header: const Text('SECURITY'),
-              children: [
-                CupertinoListTile(
                   title: const Text('FaceID / TouchID'),
                   subtitle: const Text('Secure app with biometrics'),
                   trailing: CupertinoSwitch(

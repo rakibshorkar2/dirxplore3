@@ -20,32 +20,32 @@ class GlassyNavBar extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(24, 0, 24, 34),
-        height: 64,
+        margin: const EdgeInsets.fromLTRB(24, 0, 24, 30),
+        height: 60,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: CupertinoColors.black.withValues(alpha: 0.15),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: CupertinoColors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(30),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
               decoration: BoxDecoration(
                 color: (isDark 
-                  ? CupertinoColors.systemGrey6.withValues(alpha: 0.8) 
-                  : CupertinoColors.white.withValues(alpha: 0.8)),
-                borderRadius: BorderRadius.circular(32),
+                  ? CupertinoColors.black.withValues(alpha: 0.6) 
+                  : CupertinoColors.white.withValues(alpha: 0.7)),
+                borderRadius: BorderRadius.circular(30),
                 border: Border.all(
                   color: (isDark 
-                    ? CupertinoColors.white.withValues(alpha: 0.1) 
-                    : CupertinoColors.black.withValues(alpha: 0.05)),
+                    ? CupertinoColors.white.withValues(alpha: 0.15) 
+                    : CupertinoColors.black.withValues(alpha: 0.1)),
                 ),
               ),
               child: CupertinoTabBar(
@@ -53,9 +53,9 @@ class GlassyNavBar extends StatelessWidget {
                 onTap: onTap,
                 backgroundColor: CupertinoColors.transparent,
                 activeColor: CupertinoColors.activeBlue,
-                inactiveColor: CupertinoColors.systemGrey,
+                inactiveColor: isDark ? CupertinoColors.systemGrey : CupertinoColors.systemGrey2,
                 border: null,
-                iconSize: 28,
+                iconSize: 26,
                 items: items,
               ),
             ),
