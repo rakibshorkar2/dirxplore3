@@ -55,7 +55,7 @@ class GlassyNavBar extends StatelessWidget {
                 activeColor: CupertinoColors.activeBlue,
                 inactiveColor: CupertinoColors.systemGrey,
                 border: null,
-                iconSize: 22,
+                iconSize: 28,
                 items: items,
               ),
             ),
