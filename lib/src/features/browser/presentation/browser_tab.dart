@@ -48,6 +48,40 @@ class _BrowserTabState extends ConsumerState<BrowserTab> {
           placeholder: 'Enter URL',
           onSubmitted: (_) => _fetch(),
         ),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.search),
+          onPressed: () {
+            showCupertinoModalPopup(
+              context: context,
+              builder: (context) => CupertinoActionSheet(
+                title: const Text('Deep Scan'),
+                message: const Text('Search for all files in subdirectories (up to 3 levels)'),
+                actions: [
+                  CupertinoActionSheetAction(
+                    child: const Text('Start Deep Scan'),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      setState(() => _isLoading = true);
+                      try {
+                        final entries = await _crawler.deepScan(_urlController.text);
+                        setState(() => _entries = entries);
+                      } catch (e) {
+                        // error handling
+                      } finally {
+                        setState(() => _isLoading = false);
+                      }
+                    },
+                  ),
+                ],
+                cancelButton: CupertinoActionSheetAction(
+                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            );
+          },
+        ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(CupertinoIcons.refresh),

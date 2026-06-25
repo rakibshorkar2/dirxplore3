@@ -106,4 +106,35 @@ class DirectoryCrawler {
     final baseUri = Uri.parse(baseUrl);
     return baseUri.resolve(href).toString();
   }
+
+  Future<List<DirectoryEntry>> deepScan(String baseUrl, {int maxDepth = 3}) async {
+    final List<DirectoryEntry> allFiles = [];
+    final List<String> queue = [baseUrl];
+    final Set<String> visited = {baseUrl};
+    int currentDepth = 0;
+
+    while (queue.isNotEmpty && currentDepth < maxDepth) {
+      final int levelSize = queue.length;
+      for (int i = 0; i < levelSize; i++) {
+        final currentUrl = queue.removeAt(0);
+        try {
+          final entries = await fetchDirectory(currentUrl);
+          for (final entry in entries) {
+            if (entry.isDirectory) {
+              if (!visited.contains(entry.url)) {
+                visited.add(entry.url);
+                queue.add(entry.url);
+              }
+            } else {
+              allFiles.add(entry);
+            }
+          }
+        } catch (e) {
+          // Skip failing directories
+        }
+      }
+      currentDepth++;
+    }
+    return allFiles;
+  }
 }

@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../logic/security_service.dart';
 
-class SettingsTab extends StatelessWidget {
+class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final security = ref.watch(securityServiceProvider);
+
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Settings'),
@@ -12,6 +16,21 @@ class SettingsTab extends StatelessWidget {
       child: SafeArea(
         child: ListView(
           children: [
+            CupertinoFormSection.insetGrouped(
+              header: const Text('SECURITY'),
+              children: [
+                CupertinoListTile(
+                  title: const Text('FaceID / TouchID'),
+                  subtitle: const Text('Secure app with biometrics'),
+                  trailing: CupertinoSwitch(
+                    value: security.isBiometricEnabled,
+                    onChanged: (val) {
+                      ref.read(securityServiceProvider.notifier).toggleBiometrics(val);
+                    },
+                  ),
+                ),
+              ],
+            ),
             CupertinoFormSection.insetGrouped(
               header: const Text('GENERAL'),
               children: [

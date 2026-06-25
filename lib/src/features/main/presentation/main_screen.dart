@@ -1,14 +1,50 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import '../../settings/logic/security_service.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends ConsumerStatefulWidget {
   final Widget child;
-
   const MainScreen({super.key, required this.child});
 
   @override
+  ConsumerState<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends ConsumerState<MainScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(securityServiceProvider.notifier).authenticate();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final security = ref.watch(securityServiceProvider);
+    
+    if (security.isBiometricEnabled && !security.isAuthenticated) {
+      return CupertinoPageScaffold(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(CupertinoIcons.lock_shield, size: 64, color: CupertinoColors.activeBlue),
+              const SizedBox(height: 16),
+              const Text('DirXplore is Locked'),
+              const SizedBox(height: 24),
+              CupertinoButton.filled(
+                child: const Text('Unlock'),
+                onPressed: () => ref.read(securityServiceProvider.notifier).authenticate(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return CupertinoPageScaffold(
       child: Stack(
         children: [

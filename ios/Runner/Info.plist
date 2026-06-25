@@ -91,6 +91,8 @@
 	<string>Needed to play downloaded audio files.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>DirXplore needs access to your local network to discover and download from servers like 172.16.50.4.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use FaceID to secure your downloads and private vault.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_http._tcp</string>
