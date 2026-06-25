@@ -11,8 +11,9 @@ import UIKit
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
 
-    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-    backgroundDownloader = BackgroundDownloader(messenger: controller.binaryMessenger)
+    if let controller = window?.rootViewController as? FlutterViewController {
+        backgroundDownloader = BackgroundDownloader(messenger: controller.binaryMessenger)
+    }
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
