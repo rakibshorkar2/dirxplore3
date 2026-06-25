@@ -73,7 +73,9 @@ class _ProxyTabState extends ConsumerState<ProxyTab> {
                             ),
                           ],
                         ),
-                        const Divider(height: 24),
+                        const SizedBox(height: 12),
+                        Container(height: 1, color: CupertinoColors.separator.resolveFrom(context)),
+                        const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

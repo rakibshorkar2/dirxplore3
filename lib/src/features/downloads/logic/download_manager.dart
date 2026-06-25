@@ -80,6 +80,11 @@ class DownloadManager extends StateNotifier<List<DownloadTask>> {
     }
   }
 
+  Future<void> pauseDownload(int taskId) async {
+    await _channel.invokeMethod('pauseDownload', {'taskId': taskId});
+    _updateTask(taskId, status: 'paused');
+  }
+
   Future<void> resumeTask(int taskId) async {
     final int? newId = await _channel.invokeMethod('resumeDownload', {'taskId': taskId});
     if (newId != null) {
@@ -134,11 +139,18 @@ class DownloadManager extends StateNotifier<List<DownloadTask>> {
     }
   }
 
-  void _updateTask(int id, {double? progress, String? status, String? path}) {
+  void _updateTask(int id, {double? progress, String? status, String? path, int? bytesWritten, int? totalBytes, double? speed}) {
     state = [
       for (final task in state)
         if (task.id == id)
-          task.copyWith(progress: progress, status: status, path: path)
+          task.copyWith(
+            progress: progress,
+            status: status,
+            path: path,
+            bytesWritten: bytesWritten,
+            totalBytes: totalBytes,
+            speed: speed,
+          )
         else
           task
     ];

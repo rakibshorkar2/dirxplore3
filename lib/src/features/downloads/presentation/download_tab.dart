@@ -100,7 +100,7 @@ class DownloadTab extends ConsumerWidget {
                             else if (task.status == 'paused')
                               CupertinoButton(
                                 padding: EdgeInsets.zero,
-                                child: const Icon(CupertinoIcons.play_arrow_fill, size: 20),
+                                child: const Icon(CupertinoIcons.play_fill, size: 20),
                                 onPressed: () => ref.read(downloadManagerProvider.notifier).resumeTask(task.id),
                               ),
                           ],
