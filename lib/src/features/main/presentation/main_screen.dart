@@ -23,7 +23,7 @@ class MainScreen extends StatelessWidget {
                 child: CupertinoTabBar(
                   currentIndex: _calculateSelectedIndex(context),
                   onTap: (index) => _onItemTapped(index, context),
-                  backgroundColor: CupertinoColors.systemBackground.withOpacity(0.5),
+                  backgroundColor: CupertinoColors.systemBackground.withAlpha(128),
                   activeColor: CupertinoColors.activeBlue,
                   items: const [
                     BottomNavigationBarItem(icon: Icon(CupertinoIcons.globe), label: 'Browser'),

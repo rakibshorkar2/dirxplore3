@@ -20,8 +20,10 @@ class _BrowserTabState extends ConsumerState<BrowserTab> {
     setState(() => _isLoading = true);
     try {
       final entries = await _crawler.fetchDirectory(_urlController.text);
+      if (!mounted) return;
       setState(() => _entries = entries);
     } catch (e) {
+      if (!mounted) return;
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
@@ -33,7 +35,7 @@ class _BrowserTabState extends ConsumerState<BrowserTab> {
         ),
       );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

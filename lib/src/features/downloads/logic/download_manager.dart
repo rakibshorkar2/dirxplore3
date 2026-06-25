@@ -43,7 +43,8 @@ class DownloadManager extends StateNotifier<List<DownloadTask>> {
       final int taskId = await _channel.invokeMethod('startDownload', {'url': url});
       state = [...state, DownloadTask(id: taskId, url: url, status: 'downloading')];
     } on PlatformException catch (e) {
-      print('Failed to start download: ${e.message}');
+      // Use a proper logger or debugPrint in a real app
+      // debugPrint('Failed to start download: ${e.message}');
     }
   }
 
