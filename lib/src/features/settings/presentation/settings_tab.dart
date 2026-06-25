@@ -79,6 +79,10 @@ class SettingsTab extends ConsumerWidget {
               header: const Text('ABOUT'),
               children: const [
                 CupertinoListTile(
+                  title: Text('Developer'),
+                  trailing: Text('RAKIB'),
+                ),
+                CupertinoListTile(
                   title: Text('Version'),
                   trailing: Text('1.0.0'),
                 ),
