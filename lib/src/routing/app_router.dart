@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import '../features/main/presentation/main_screen.dart';
 import '../features/browser/presentation/browser_tab.dart';
+import '../features/browser/presentation/web_browser_tab.dart';
 import '../features/downloads/presentation/download_tab.dart';
 import '../features/proxy/presentation/proxy_tab.dart';
 import '../features/files/presentation/files_tab.dart';
@@ -15,6 +16,10 @@ final goRouter = GoRouter(
         GoRoute(
           path: '/browser',
           builder: (context, state) => const BrowserTab(),
+        ),
+        GoRoute(
+          path: '/web',
+          builder: (context, state) => const WebBrowserTab(),
         ),
         GoRoute(
           path: '/downloads',

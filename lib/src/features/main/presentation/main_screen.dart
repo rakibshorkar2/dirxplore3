@@ -63,6 +63,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   activeColor: CupertinoColors.activeBlue,
                   items: const [
                     BottomNavigationBarItem(icon: Icon(CupertinoIcons.globe), label: 'Browser'),
+                    BottomNavigationBarItem(icon: Icon(CupertinoIcons.compass), label: 'Web'),
                     BottomNavigationBarItem(icon: Icon(CupertinoIcons.cloud_download), label: 'Downloads'),
                     BottomNavigationBarItem(icon: Icon(CupertinoIcons.shield), label: 'Proxy'),
                     BottomNavigationBarItem(icon: Icon(CupertinoIcons.folder), label: 'Files'),
@@ -80,10 +81,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/browser')) return 0;
-    if (location.startsWith('/downloads')) return 1;
-    if (location.startsWith('/proxy')) return 2;
-    if (location.startsWith('/files')) return 3;
-    if (location.startsWith('/settings')) return 4;
+    if (location.startsWith('/web')) return 1;
+    if (location.startsWith('/downloads')) return 2;
+    if (location.startsWith('/proxy')) return 3;
+    if (location.startsWith('/files')) return 4;
+    if (location.startsWith('/settings')) return 5;
     return 0;
   }
 
@@ -93,15 +95,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         GoRouter.of(context).go('/browser');
         break;
       case 1:
-        GoRouter.of(context).go('/downloads');
+        GoRouter.of(context).go('/web');
         break;
       case 2:
-        GoRouter.of(context).go('/proxy');
+        GoRouter.of(context).go('/downloads');
         break;
       case 3:
-        GoRouter.of(context).go('/files');
+        GoRouter.of(context).go('/proxy');
         break;
       case 4:
+        GoRouter.of(context).go('/files');
+        break;
+      case 5:
         GoRouter.of(context).go('/settings');
         break;
     }
