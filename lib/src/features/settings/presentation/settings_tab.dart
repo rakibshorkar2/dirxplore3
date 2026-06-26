@@ -112,7 +112,7 @@ class SettingsTab extends ConsumerWidget {
                 ),
                 CupertinoListTile(
                   title: Text('Version'),
-                  trailing: Text('1.2.4'),
+                  trailing: Text('1.2.5'),
                 ),
                 CupertinoListTile(
                   title: Text('DirXplore iOS'),

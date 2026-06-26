@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
 import '../../settings/logic/security_service.dart';
 
 import 'glassy_nav_bar.dart';
@@ -84,6 +85,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   void _onItemTapped(int index, BuildContext context) {
+    HapticFeedback.mediumImpact();
     switch (index) {
       case 0:
         GoRouter.of(context).go('/browser');

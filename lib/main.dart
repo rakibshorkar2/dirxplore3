@@ -5,12 +5,34 @@ import 'src/features/settings/logic/theme_provider.dart';
 
 import 'src/features/downloads/logic/notification_service.dart';
 
+import 'dart:io';
+import 'src/core/network/proxy_overrides.dart';
+import 'src/features/proxy/logic/proxy_manager.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.init();
+
+  // Create a container to read the initial proxy state
+  final container = ProviderContainer();
+  final proxyList = container.read(proxyManagerProvider);
+  final activeProxy = proxyList.isNotEmpty 
+      ? proxyList.firstWhere((p) => p.enabled, orElse: () => proxyList.first) 
+      : null;
+
+  if (activeProxy != null && activeProxy.enabled) {
+    HttpOverrides.global = GlobalProxyOverrides(
+      host: activeProxy.host,
+      port: activeProxy.port,
+      username: activeProxy.username,
+      password: activeProxy.password,
+    );
+  }
+
   runApp(
-    const ProviderScope(
-      child: DirXploreApp(),
+    UncontrolledProviderScope(
+      container: container,
+      child: const DirXploreApp(),
     ),
   );
 }
