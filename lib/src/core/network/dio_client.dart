@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:socks5_proxy/socks_client.dart';
 import '../../features/proxy/logic/proxy_manager.dart';
 
 final dioProvider = Provider<Dio>((ref) {
@@ -12,15 +13,16 @@ final dioProvider = Provider<Dio>((ref) {
       : null;
 
   if (activeProxy != null && activeProxy.enabled) {
+    // SOCKS5 Support via socks5_proxy package
     dio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: () {
         final client = HttpClient();
-        // Force the app to use the SOCKS5 proxy internally for all requests
-        client.findProxy = (uri) {
-          return "SOCKS5 ${activeProxy.host}:${activeProxy.port}; DIRECT";
-        };
-        // For BDIX servers that might have invalid certificates
-        client.badCertificateCallback = (cert, host, port) => true;
+        // Create SOCKS5 proxy URI
+        final proxyUri = Uri.parse('socks5://${activeProxy.host}:${activeProxy.port}');
+        
+        // This ensures all Dio traffic within the app is routed through SOCKS5
+        SocksRSA.setProxy(client, proxyUri);
+
         return client;
       },
     );
