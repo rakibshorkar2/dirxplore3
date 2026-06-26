@@ -13,15 +13,25 @@ final dioProvider = Provider<Dio>((ref) {
       : null;
 
   if (activeProxy != null && activeProxy.enabled) {
-    // SOCKS5 Support via socks5_proxy package
     dio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: () {
         final client = HttpClient();
-        // Create SOCKS5 proxy URI
-        final proxyUri = Uri.parse('socks5://${activeProxy.host}:${activeProxy.port}');
         
-        // This ensures all Dio traffic within the app is routed through SOCKS5
-        SocksRSA.setProxy(client, proxyUri);
+        // Define proxy settings for socks5_proxy v2.1.1
+        final proxySettings = [
+          ProxySettings(
+            InternetAddress.tryParse(activeProxy.host) ?? InternetAddress.anyIPv4,
+            activeProxy.port,
+            username: activeProxy.username,
+            password: activeProxy.password,
+          ),
+        ];
+
+        // Apply the SOCKS5 tunnel to the HttpClient
+        SocksTCPClient.assignToHttpClient(client, proxySettings);
+        
+        // For BDIX servers that might have invalid certificates
+        client.badCertificateCallback = (cert, host, port) => true;
 
         return client;
       },
