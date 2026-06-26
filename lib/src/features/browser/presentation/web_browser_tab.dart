@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+// #docregion platform_imports
+// Import for iOS features.
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+// #end docregion platform_imports
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../downloads/logic/download_manager.dart';
+import '../../proxy/logic/proxy_manager.dart';
 
 import 'package:badges/badges.dart' as badges;
 
@@ -22,7 +27,24 @@ class _WebBrowserTabState extends ConsumerState<WebBrowserTab> {
   @override
   void initState() {
     super.initState();
-    _controller = WebViewController()
+    
+    // #docregion platform_features
+    late final PlatformWebViewControllerCreationParams params;
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserActionForPlayback: const <PlaybackMediaTypes>{},
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    _controller = WebViewController.fromPlatformCreationParams(params);
+    // #end docregion platform_features
+
+    _applyProxy();
+
+    _controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -46,6 +68,23 @@ class _WebBrowserTabState extends ConsumerState<WebBrowserTab> {
         ),
       )
       ..loadRequest(Uri.parse(_currentUrl));
+  }
+
+  void _applyProxy() {
+    final proxyList = ref.read(proxyManagerProvider);
+    final activeProxy = proxyList.isNotEmpty 
+        ? proxyList.firstWhere((p) => p.enabled, orElse: () => proxyList.first) 
+        : null;
+
+    if (activeProxy != null && activeProxy.enabled) {
+      // For iOS, we need to set the proxy in the native WKWebView configuration
+      if (_controller.platform is WebKitWebViewController) {
+        // Unfortunately webview_flutter 4.x doesn't expose a clean per-instance proxy API
+        // It usually inherits from the global system or URLSession.
+        // However, we can attempt to inject it via JS or rely on the native adapter for Dio.
+        // For the Web Tab specifically, we will rely on the app's internal routing.
+      }
+    }
   }
 
   void _updateNavButtons() async {

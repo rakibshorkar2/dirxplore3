@@ -37,6 +37,7 @@ class GlassyNavBar extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
               decoration: BoxDecoration(
                 color: (isDark 
                   ? CupertinoColors.black.withValues(alpha: 0.6) 
@@ -55,7 +56,7 @@ class GlassyNavBar extends StatelessWidget {
                 activeColor: CupertinoColors.activeBlue,
                 inactiveColor: isDark ? CupertinoColors.systemGrey : CupertinoColors.systemGrey2,
                 border: null,
-                iconSize: 26,
+                iconSize: 24,
                 items: items,
               ),
             ),

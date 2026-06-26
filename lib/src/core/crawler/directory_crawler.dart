@@ -22,41 +22,40 @@ class DirectoryEntry {
 }
 
 class DirectoryCrawler {
-  Future<List<DirectoryEntry>> fetchDirectory(String url) async {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load directory: ${response.statusCode}');
-    }
-
-    final document = parse(response.body);
+  Future<List<DirectoryEntry>> fetchFromHtml(String body, String url) async {
+    final document = parse(body);
     final List<DirectoryEntry> entries = [];
-
-    // Common selectors for Apache/Nginx and modern BDIX directory listings
+    
+    // ... logic remains same as fetchDirectory but without http.get
     final rows = document.querySelectorAll('tr');
     final divs = document.querySelectorAll('.file, .folder, .item, [class*="file"], [class*="folder"]');
     
     if (rows.isNotEmpty) {
-      // Standard Table-based parsing
       for (var i = 0; i < rows.length; i++) {
         final entry = _parseRow(rows[i], url);
         if (entry != null) entries.add(entry);
       }
     } else if (divs.isNotEmpty) {
-      // Modern Grid/Div-based parsing (CircleFTP / DhakaFlix style)
       for (final div in divs) {
         final entry = _parseDiv(div, url);
         if (entry != null) entries.add(entry);
       }
     } else {
-      // Fallback for simple links
       final links = document.querySelectorAll('a');
       for (final link in links) {
         final entry = _parseLink(link, url);
         if (entry != null) entries.add(entry);
       }
     }
-
     return entries;
+  }
+
+  Future<List<DirectoryEntry>> fetchDirectory(String url) async {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load directory: ${response.statusCode}');
+    }
+    return fetchFromHtml(response.body, url);
   }
 
   DirectoryEntry? _parseDiv(Element div, String baseUrl) {

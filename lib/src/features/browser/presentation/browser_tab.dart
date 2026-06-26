@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/crawler/directory_crawler.dart';
 import '../../downloads/logic/download_manager.dart';
+import 'package:dio/dio.dart';
+import '../../../core/network/dio_client.dart';
 
 class BrowserTab extends ConsumerStatefulWidget {
   const BrowserTab({super.key});
@@ -19,7 +21,12 @@ class _BrowserTabState extends ConsumerState<BrowserTab> {
   Future<void> _fetch() async {
     setState(() => _isLoading = true);
     try {
-      final entries = await _crawler.fetchDirectory(_urlController.text);
+      final dio = ref.read(dioProvider);
+      final response = await dio.get(_urlController.text);
+      final html = response.data.toString();
+      
+      // Update crawler to use HTML string instead of direct GET
+      final entries = await _crawler.fetchFromHtml(html, _urlController.text);
       if (!mounted) return;
       setState(() => _entries = entries);
     } catch (e) {
