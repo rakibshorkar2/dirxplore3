@@ -58,14 +58,14 @@ class _FilesTabState extends State<FilesTab> {
                     padding: const EdgeInsets.only(right: 8),
                     child: CupertinoButton(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      minSize: 32,
+                      minimumSize: const Size(0, 32),
                       color: isSelected ? CupertinoColors.activeBlue : CupertinoColors.systemGrey5,
                       borderRadius: BorderRadius.circular(16),
-                      child: Text(cat, style: TextStyle(color: isSelected ? CupertinoColors.white : CupertinoColors.label, fontSize: 13)),
                       onPressed: () {
                         setState(() => _selectedCategory = cat);
                         _loadFiles();
                       },
+                      child: Text(cat, style: TextStyle(color: isSelected ? CupertinoColors.white : CupertinoColors.label, fontSize: 13)),
                     ),
                   );
                 }).toList(),

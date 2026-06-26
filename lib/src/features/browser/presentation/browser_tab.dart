@@ -133,7 +133,10 @@ class _BrowserTabState extends ConsumerState<BrowserTab> {
                                   title: const Text('Download Started'),
                                   content: Text(entry.name),
                                   actions: [
-                                    CupertinoDialogAction(child: const Text('OK'), onPressed: () => Navigator.pop(context)),
+                                    CupertinoDialogAction(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('OK'),
+                                    ),
                                   ],
                                 ),
                               );

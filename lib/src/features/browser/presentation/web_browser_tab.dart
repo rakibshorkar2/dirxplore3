@@ -83,7 +83,9 @@ class _WebBrowserTabState extends ConsumerState<WebBrowserTab> {
       setState(() {
         _detectedLinks.addAll(links.map((e) => e.toString().replaceAll('"', '').trim()).where((e) => e.isNotEmpty));
       });
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Sniffer error: $e');
+    }
   }
 
   void _showSnifferList() {
@@ -141,13 +143,13 @@ class _WebBrowserTabState extends ConsumerState<WebBrowserTab> {
               right: 20,
               bottom: 100,
               child: badges.Badge(
-                badgeContent: Text('${_detectedLinks.length}', style: const TextStyle(color: CupertinoColors.white, fontSize: 10)),
                 child: CupertinoButton.filled(
                   padding: EdgeInsets.zero,
                   borderRadius: BorderRadius.circular(30),
-                  child: const Icon(CupertinoIcons.cloud_download, size: 28),
                   onPressed: _showSnifferList,
+                  child: const Icon(CupertinoIcons.cloud_download, size: 28),
                 ),
+                badgeContent: Text('${_detectedLinks.length}', style: const TextStyle(color: CupertinoColors.white, fontSize: 10)),
               ),
             ),
         ],

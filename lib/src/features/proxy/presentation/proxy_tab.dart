@@ -101,11 +101,11 @@ class _ProxyTabState extends ConsumerState<ProxyTab> {
                               children: [
                                 CupertinoButton(
                                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  minSize: 32,
-                                  color: CupertinoColors.activeBlue.withAlpha(30),
+                                  minimumSize: const Size(0, 32),
+                                  color: CupertinoColors.activeBlue.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(16),
-                                  child: const Text('Test', style: TextStyle(color: CupertinoColors.activeBlue, fontSize: 12)),
                                   onPressed: () => ref.read(proxyManagerProvider.notifier).testProxy(proxy.id),
+                                  child: const Text('Test', style: TextStyle(color: CupertinoColors.activeBlue, fontSize: 12)),
                                 ),
                                 const SizedBox(width: 8),
                                 CupertinoButton(
