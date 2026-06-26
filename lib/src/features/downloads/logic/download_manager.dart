@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'notification_service.dart';
+import '../../settings/logic/settings_provider.dart';
 
 class DownloadTask {
   final int id;
@@ -52,18 +53,17 @@ class DownloadManager extends StateNotifier<List<DownloadTask>> {
   static const _channel = MethodChannel('com.dirxplore.app/downloads');
   final Map<int, DateTime> _lastUpdateTimes = {};
   final Map<int, int> _lastBytes = {};
-  int _maxParallel = 3;
+  final Ref ref;
 
-  DownloadManager() : super([]) {
+  DownloadManager(this.ref) : super([]) {
     _channel.setMethodCallHandler(_handleNativeCall);
   }
 
-  void setMaxParallel(int count) => _maxParallel = count;
-
   Future<void> startDownload(String url) async {
-    // Check parallel limit
+    // Check parallel limit from settings
+    final maxParallel = ref.read(settingsProvider).concurrentDownloads;
     final active = state.where((t) => t.status == 'downloading').length;
-    if (active >= _maxParallel) {
+    if (active >= maxParallel) {
       state = [...state, DownloadTask(id: -1, url: url, status: 'queued')];
       return;
     }
@@ -161,5 +161,5 @@ class DownloadManager extends StateNotifier<List<DownloadTask>> {
 }
 
 final downloadManagerProvider = StateNotifierProvider<DownloadManager, List<DownloadTask>>((ref) {
-  return DownloadManager();
+  return DownloadManager(ref);
 });

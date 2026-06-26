@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../logic/security_service.dart';
 import '../logic/theme_provider.dart';
+import '../logic/settings_provider.dart';
 
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
@@ -10,6 +11,7 @@ class SettingsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final security = ref.watch(securityServiceProvider);
     final themeBrightness = ref.watch(themeProvider);
+    final settings = ref.watch(settingsProvider);
     final isDark = themeBrightness == Brightness.dark;
 
     return CupertinoPageScaffold(
@@ -51,13 +53,53 @@ class SettingsTab extends ConsumerWidget {
             CupertinoFormSection.insetGrouped(
               header: const Text('GENERAL'),
               children: [
-                const CupertinoListTile(
-                  title: Text('Concurrent Downloads'),
-                  trailing: Text('3'),
+                CupertinoListTile(
+                  title: const Text('Concurrent Downloads'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('${settings.concurrentDownloads}'),
+                      const SizedBox(width: 8),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: const Icon(CupertinoIcons.minus_circle, size: 22),
+                        onPressed: settings.concurrentDownloads > 1 
+                          ? () => ref.read(settingsProvider.notifier).setConcurrentDownloads(settings.concurrentDownloads - 1)
+                          : null,
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: const Icon(CupertinoIcons.plus_circle, size: 22),
+                        onPressed: settings.concurrentDownloads < 10
+                          ? () => ref.read(settingsProvider.notifier).setConcurrentDownloads(settings.concurrentDownloads + 1)
+                          : null,
+                      ),
+                    ],
+                  ),
                 ),
-                const CupertinoListTile(
-                  title: Text('Retry Count'),
-                  trailing: Text('5'),
+                CupertinoListTile(
+                  title: const Text('Retry Count'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('${settings.retryCount}'),
+                      const SizedBox(width: 8),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: const Icon(CupertinoIcons.minus_circle, size: 22),
+                        onPressed: settings.retryCount > 0 
+                          ? () => ref.read(settingsProvider.notifier).setRetryCount(settings.retryCount - 1)
+                          : null,
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: const Icon(CupertinoIcons.plus_circle, size: 22),
+                        onPressed: settings.retryCount < 20
+                          ? () => ref.read(settingsProvider.notifier).setRetryCount(settings.retryCount + 1)
+                          : null,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

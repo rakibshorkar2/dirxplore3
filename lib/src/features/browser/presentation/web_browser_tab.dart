@@ -151,6 +151,7 @@ class _WebBrowserTabState extends ConsumerState<WebBrowserTab> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: true,
       navigationBar: CupertinoNavigationBar(
         middle: Text(_currentUrl, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
         leading: Row(
