@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:yaml/yaml.dart';
+
 class ProxyConfig {
   final String id;
   final String name;
@@ -120,6 +122,31 @@ class ProxyManager extends StateNotifier<List<ProxyConfig>> {
       for (final p in state)
         if (p.id == id) p.copyWith(latency: latency, isp: isp) else p
     ];
+  }
+
+  Future<void> importYaml(String yamlString) async {
+    try {
+      final doc = loadYaml(yamlString);
+      if (doc['proxies'] is YamlList) {
+        final List<ProxyConfig> newProxies = [];
+        for (final p in doc['proxies']) {
+          if (p['type'] == 'socks5') {
+            newProxies.add(ProxyConfig(
+              id: const Uuid().v4(),
+              name: p['name'] ?? 'SOCKS5 Proxy',
+              host: p['server'],
+              port: p['port'],
+              username: p['username']?.toString(),
+              password: p['password']?.toString(),
+            ));
+          }
+        }
+        state = [...state, ...newProxies];
+        await _save();
+      }
+    } catch (e) {
+      // Handle parsing error
+    }
   }
 }
 

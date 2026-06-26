@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../logic/proxy_manager.dart';
 
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+
 class ProxyTab extends ConsumerStatefulWidget {
   const ProxyTab({super.key});
 
@@ -24,6 +27,11 @@ class _ProxyTabState extends ConsumerState<ProxyTab> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: const Text('SOCKS5 Proxy'),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.doc_text),
+          onPressed: () => _importYaml(context),
+        ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(CupertinoIcons.add),
@@ -128,6 +136,19 @@ class _ProxyTabState extends ConsumerState<ProxyTab> {
       height: 8,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
+  }
+
+  void _importYaml(BuildContext context) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+
+    if (result != null) {
+      final file = File(result.files.single.path!);
+      final content = await file.readAsString();
+      ref.read(proxyManagerProvider.notifier).importYaml(content);
+    }
   }
 
   void _showAddProxySheet(BuildContext context) {

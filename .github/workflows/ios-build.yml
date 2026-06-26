@@ -31,7 +31,7 @@ jobs:
 
       - name: Build iOS
         run: |
-          flutter build ios --release --no-codesign --archs=arm64
+          flutter build ios --release --no-codesign
 
       - name: Create Payload and IPA
         run: |
