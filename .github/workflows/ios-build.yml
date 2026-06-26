@@ -24,36 +24,22 @@ jobs:
 
       - name: Build iOS
         run: |
-          # Create a custom config to bypass the Team ID check for unsigned builds
-          echo "DEVELOPMENT_TEAM =" > build_config.xcconfig
-          flutter build ios --release --no-codesign --config-only
-          
-          # Build using xcodebuild directly to ensure no-codesign works without a Team
-          xcodebuild -workspace ios/Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -sdk iphoneos \
-            -xcconfig build_config.xcconfig \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            PROVISIONING_PROFILE_SPECIFIER="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            clean build
-            
-          # Prepare the build directory for the next step
-          mkdir -p build/ios/iphoneos
-          cp -Rp build/Release-iphoneos/Runner.app build/ios/iphoneos/
+          # Build the iOS application bundle without codesigning
+          flutter build ios --release --no-codesign
 
-      - name: Create Payload and IPA
+      - name: Package IPA
         run: |
-          mkdir Payload
-          cp -Rp build/ios/iphoneos/Runner.app Payload/
+          # The IPA needs a specific structure: a 'Payload' folder containing the '.app' bundle.
+          # We take the '.app' produced by the flutter build command.
+          mkdir -p build/ios/iphoneos/Payload
+          cp -Rp build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload/
+          
+          # Zip the Payload folder and name it .ipa
+          cd build/ios/iphoneos
           zip -r -y DirXplore.ipa Payload
-          mv DirXplore.ipa build/ios/iphoneos/
           
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: dirxplore-ipa
+          name: DirXplore-IPA
           path: build/ios/iphoneos/DirXplore.ipa
