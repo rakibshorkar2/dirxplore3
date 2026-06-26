@@ -102,7 +102,6 @@ class ProxyManager extends StateNotifier<List<ProxyConfig>> {
   }
 
   Future<void> testProxy(String id) async {
-    final proxy = state.firstWhere((p) => p.id == id);
     final stopwatch = Stopwatch()..start();
     
     try {
