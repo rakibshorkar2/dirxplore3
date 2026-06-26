@@ -18,16 +18,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          # Removing specific version to always use the latest stable
 
       - name: Install dependencies
         run: flutter pub get
-
-      - name: Setup Fastlane
-        run: |
-          cd ios
-          # Note: In a real scenario, you'd need certificates/profiles for sideloading
-          # For a generic "build", we'll just try to build the archive.
 
       - name: Build iOS
         run: |
@@ -35,10 +28,9 @@ jobs:
 
       - name: Create Payload and IPA
         run: |
-          mkdir -p Payload
+          mkdir Payload
           cp -Rp build/ios/iphoneos/Runner.app Payload/
-          # ditto is more reliable on macOS for preserving app bundle integrity
-          ditto -c -k --sequesterRsrc --keepParent Payload DirXplore.ipa
+          zip -r -y DirXplore.ipa Payload
           mv DirXplore.ipa build/ios/iphoneos/
           
       - name: Upload IPA

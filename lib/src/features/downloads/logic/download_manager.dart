@@ -130,6 +130,8 @@ class DownloadManager extends StateNotifier<List<DownloadTask>> {
       case 'onDownloadComplete':
         final int taskId = call.arguments['taskId'];
         final String path = call.arguments['path'];
+        final task = state.firstWhere((t) => t.id == taskId);
+        NotificationService.showDownloadComplete(task.url.split('/').last);
         _updateTask(taskId, status: 'completed', path: path);
         break;
       case 'onDownloadError':

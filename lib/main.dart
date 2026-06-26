@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/routing/app_router.dart';
 import 'src/features/settings/logic/theme_provider.dart';
 
-void main() {
+import 'src/features/downloads/logic/notification_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.init();
   runApp(
     const ProviderScope(
       child: DirXploreApp(),
