@@ -20,14 +20,14 @@ class GlassyNavBar extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(24, 0, 24, 30),
-        height: 60,
+        margin: const EdgeInsets.fromLTRB(28, 0, 24, 38), // Optimized for iPhone 15 Pro curve
+        height: 62,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(31),
           boxShadow: [
             BoxShadow(
-              color: CupertinoColors.black.withValues(alpha: isDark ? 0.3 : 0.1),
-              blurRadius: 15,
+              color: CupertinoColors.black.withValues(alpha: isDark ? 0.4 : 0.1),
+              blurRadius: 18,
               offset: const Offset(0, 8),
             ),
           ],
