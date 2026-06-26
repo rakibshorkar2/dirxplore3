@@ -28,8 +28,11 @@ jobs:
 
       - name: Build iOS
         run: |
+          # Strip Development Team requirement from the project file
+          sed -i '' 's/DEVELOPMENT_TEAM = [^;]*;//g' ios/Runner.xcodeproj/project.pbxproj
+          
           # Build the iOS application bundle without codesigning
-          # This is the most reliable way to let Flutter handle the internal links
+          # Using --config-only first to ensure settings are applied
           flutter build ios --release --no-codesign
 
       - name: Create Payload and IPA
