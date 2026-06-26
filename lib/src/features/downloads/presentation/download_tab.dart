@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../logic/download_manager.dart';
 
 class DownloadTab extends ConsumerWidget {
@@ -139,9 +138,6 @@ class DownloadTab extends ConsumerWidget {
   String _formatBytes(int bytes) {
     if (bytes <= 0) return '0 B';
     const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    var i = (bytes.toString().length - 1) ~/ 3;
-    var res = bytes / (1024 * 1024 * 1024); // Start with GB if logic is simple
-    // More precise logic:
     double doubleBytes = bytes.toDouble();
     int suffixIndex = 0;
     while (doubleBytes >= 1024 && suffixIndex < suffixes.length - 1) {
