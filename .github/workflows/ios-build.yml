@@ -18,12 +18,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get Version from pubspec.yaml
-        id: get_version
-        run: |
-          VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -34,48 +28,31 @@ jobs:
 
       - name: Build iOS
         run: |
-          # Create a custom config to bypass the Team ID check for unsigned builds
-          echo "DEVELOPMENT_TEAM =" > build_config.xcconfig
-          flutter build ios --release --no-codesign --config-only
-          
-          # Build using xcodebuild directly to ensure no-codesign works without a Team
-          xcodebuild -workspace ios/Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -sdk iphoneos \
-            -xcconfig build_config.xcconfig \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            PROVISIONING_PROFILE_SPECIFIER="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            clean build
-            
-          # Prepare the build directory for the next step
-          mkdir -p build/ios/iphoneos
-          cp -Rp build/Release-iphoneos/Runner.app build/ios/iphoneos/
+          # Build the iOS application bundle without codesigning
+          # This is the most reliable way to let Flutter handle the internal links
+          flutter build ios --release --no-codesign
 
-      - name: Package IPA
+      - name: Create Payload and IPA
         run: |
-          # Create Payload directory and move .app bundle
-          mkdir -p build/ios/iphoneos/Payload
-          cp -Rp build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload/
+          # The IPA needs a specific structure: a 'Payload' folder containing the '.app' bundle.
+          mkdir -p Payload
+          # Use recursive copy with permissions preserved to maintain bundle integrity
+          cp -Rp build/ios/iphoneos/Runner.app Payload/
           
-          # Zip into .ipa
-          cd build/ios/iphoneos
+          # Zip with -y to preserve symbolic links (critical for Flutter frameworks)
           zip -r -y DirXplore.ipa Payload
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: DirXplore-IPA
-          path: build/ios/iphoneos/DirXplore.ipa
+          path: DirXplore.ipa
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/ios/iphoneos/DirXplore.ipa
+          files: DirXplore.ipa
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           draft: false
