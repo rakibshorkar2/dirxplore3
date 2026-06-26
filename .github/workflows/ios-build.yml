@@ -28,21 +28,26 @@ jobs:
 
       - name: Build iOS
         run: |
-          # Strip Development Team requirement from the project file
-          sed -i '' 's/DEVELOPMENT_TEAM = [^;]*;//g' ios/Runner.xcodeproj/project.pbxproj
+          # Nuclear Option: Disable all code signing requirements in the Xcode project
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_IDENTITY = "iPhone Developer";/CODE_SIGN_IDENTITY = "";/g' ios/Runner.xcodeproj/project.pbxproj
           
-          # Build the iOS application bundle without codesigning
-          # Using --config-only first to ensure settings are applied
-          flutter build ios --release --no-codesign
+          # Inject disabling flags into the build process
+          flutter build ios --release --no-codesign \
+            --extra-gen-snapshot-options=--no-codesign \
+            --build-name=1.1.5 \
+            --build-number=1
 
       - name: Create Payload and IPA
         run: |
-          # The IPA needs a specific structure: a 'Payload' folder containing the '.app' bundle.
+          # Ensure we are in a clean state
+          rm -rf Payload DirXplore.ipa
+          
           mkdir -p Payload
-          # Use recursive copy with permissions preserved to maintain bundle integrity
+          # Use the actual build output path
           cp -Rp build/ios/iphoneos/Runner.app Payload/
           
-          # Zip with -y to preserve symbolic links (critical for Flutter frameworks)
+          # Zip with symbolic links preserved
           zip -r -y DirXplore.ipa Payload
           
       - name: Upload Artifact
