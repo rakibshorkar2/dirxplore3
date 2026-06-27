@@ -43,33 +43,33 @@ class _GlassyNavBarState extends State<GlassyNavBar> with SingleTickerProviderSt
     return SafeArea(
       bottom: false,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-        height: 70,
+        margin: const EdgeInsets.fromLTRB(24, 0, 24, 34),
+        height: 66,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(35),
+          borderRadius: BorderRadius.circular(33),
           boxShadow: [
             BoxShadow(
-              color: CupertinoColors.black.withValues(alpha: isDark ? 0.4 : 0.15),
-              blurRadius: 25,
-              offset: const Offset(0, 10),
+              color: CupertinoColors.black.withValues(alpha: isDark ? 0.4 : 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(35),
+          borderRadius: BorderRadius.circular(33),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 color: (isDark 
                   ? CupertinoColors.black.withValues(alpha: 0.5) 
                   : CupertinoColors.white.withValues(alpha: 0.6)),
-                borderRadius: BorderRadius.circular(35),
+                borderRadius: BorderRadius.circular(33),
                 border: Border.all(
                   color: (isDark 
-                    ? CupertinoColors.white.withValues(alpha: 0.12) 
-                    : CupertinoColors.black.withValues(alpha: 0.08)),
-                  width: 0.5,
+                    ? CupertinoColors.white.withValues(alpha: 0.1) 
+                    : CupertinoColors.black.withValues(alpha: 0.05)),
                 ),
               ),
               child: Row(
@@ -80,7 +80,7 @@ class _GlassyNavBarState extends State<GlassyNavBar> with SingleTickerProviderSt
                     item: widget.items[index],
                     isSelected: isSelected,
                     onTap: () {
-                      HapticFeedback.lightImpact();
+                      HapticFeedback.mediumImpact();
                       widget.onTap(index);
                     },
                   );
@@ -107,39 +107,44 @@ class _NavBarIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 300),
-        scale: isSelected ? 1.2 : 1.0,
-        curve: Curves.elasticOut,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              (item.icon as Icon).icon,
-              color: isSelected ? CupertinoColors.activeBlue : CupertinoColors.systemGrey,
-              size: 28,
-            ),
-            if (isSelected)
-              Container(
-                margin: const EdgeInsets.only(top: 4),
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: CupertinoColors.activeBlue,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: CupertinoColors.activeBlue,
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 200),
+            scale: isSelected ? 1.25 : 1.0,
+            curve: Curves.easeOutBack,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  (item.icon as Icon).icon,
+                  color: isSelected ? CupertinoColors.activeBlue : CupertinoColors.systemGrey,
+                  size: 30,
                 ),
-              ),
-          ],
+                if (isSelected)
+                  Container(
+                    margin: const EdgeInsets.only(top: 6),
+                    width: 5,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.activeBlue,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: CupertinoColors.activeBlue.withValues(alpha: 0.8),
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );

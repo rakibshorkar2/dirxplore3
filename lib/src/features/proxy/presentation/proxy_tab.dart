@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../logic/proxy_manager.dart';
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import '../../../core/network/engine/traffic_monitor.dart';
 
 class ProxyTab extends ConsumerStatefulWidget {
   const ProxyTab({super.key});
@@ -23,6 +26,7 @@ class _ProxyTabState extends ConsumerState<ProxyTab> {
   @override
   Widget build(BuildContext context) {
     final proxies = ref.watch(proxyManagerProvider);
+    final stats = ref.watch(trafficMonitorProvider);
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
@@ -39,91 +43,144 @@ class _ProxyTabState extends ConsumerState<ProxyTab> {
         ),
       ),
       child: SafeArea(
-        child: proxies.isEmpty
-            ? const Center(child: Text('No proxies added'))
-            : ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: proxies.length,
-                itemBuilder: (context, index) {
-                  final proxy = proxies[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.systemBackground.resolveFrom(context),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: CupertinoColors.systemGrey.withAlpha(40),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+        child: Column(
+          children: [
+            _buildTrafficStats(stats),
+            Expanded(
+              child: proxies.isEmpty
+                  ? const Center(child: Text('No proxies added'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: proxies.length,
+                      itemBuilder: (context, index) {
+                        final proxy = proxies[index];
+                        return _buildProxyCard(proxy);
+                      },
                     ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(CupertinoIcons.shield_fill, color: CupertinoColors.activeBlue),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(proxy.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('${proxy.host}:${proxy.port}', style: const TextStyle(fontSize: 12, color: CupertinoColors.systemGrey)),
-                                ],
-                              ),
-                            ),
-                            CupertinoSwitch(
-                              value: proxy.enabled,
-                              onChanged: (val) => ref.read(proxyManagerProvider.notifier).toggleProxy(proxy.id, val),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Container(height: 1, color: CupertinoColors.separator.resolveFrom(context)),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                _buildStatusIndicator(proxy),
-                                const SizedBox(width: 8),
-                                Text(
-                                  proxy.latency == null ? 'Not Tested' : (proxy.latency! < 0 ? 'Offline' : '${proxy.latency}ms'),
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                CupertinoButton(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  minimumSize: const Size(0, 32),
-                                  color: CupertinoColors.activeBlue.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(16),
-                                  onPressed: () => ref.read(proxyManagerProvider.notifier).testProxy(proxy.id),
-                                  child: const Text('Test', style: TextStyle(color: CupertinoColors.activeBlue, fontSize: 12)),
-                                ),
-                                const SizedBox(width: 8),
-                                CupertinoButton(
-                                  padding: EdgeInsets.zero,
-                                  child: const Icon(CupertinoIcons.delete, color: CupertinoColors.destructiveRed, size: 20),
-                                  onPressed: () => ref.read(proxyManagerProvider.notifier).deleteProxy(proxy.id),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildTrafficStats(TrafficStats stats) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: CupertinoColors.activeBlue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: CupertinoColors.activeBlue.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatItem('UPLOAD', _formatBytes(stats.totalUploaded), CupertinoIcons.arrow_up_circle),
+          _buildStatItem('DOWNLOAD', _formatBytes(stats.totalDownloaded), CupertinoIcons.arrow_down_circle),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: CupertinoColors.activeBlue, size: 24),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: CupertinoColors.systemGrey)),
+        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildProxyCard(ProxyConfig proxy) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.systemGrey.withValues(alpha: 0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(CupertinoIcons.shield_fill, color: CupertinoColors.activeBlue),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(proxy.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('${proxy.host}:${proxy.port}', style: const TextStyle(fontSize: 12, color: CupertinoColors.systemGrey)),
+                  ],
+                ),
+              ),
+              CupertinoSwitch(
+                value: proxy.enabled,
+                onChanged: (val) => ref.read(proxyManagerProvider.notifier).toggleProxy(proxy.id, val),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(height: 1, color: CupertinoColors.separator.resolveFrom(context)),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  _buildStatusIndicator(proxy),
+                  const SizedBox(width: 8),
+                  Text(
+                    proxy.latency == null ? 'Not Tested' : (proxy.latency! < 0 ? 'Offline' : '${proxy.latency}ms'),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  CupertinoButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    minimumSize: const Size(0, 32),
+                    color: CupertinoColors.activeBlue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    onPressed: () => ref.read(proxyManagerProvider.notifier).testProxy(proxy.id),
+                    child: const Text('Test', style: TextStyle(color: CupertinoColors.activeBlue, fontSize: 12)),
+                  ),
+                  const SizedBox(width: 8),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: const Icon(CupertinoIcons.delete, color: CupertinoColors.destructiveRed, size: 20),
+                    onPressed: () => ref.read(proxyManagerProvider.notifier).deleteProxy(proxy.id),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes <= 0) return '0 B';
+    const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    double doubleBytes = bytes.toDouble();
+    int suffixIndex = 0;
+    while (doubleBytes >= 1024 && suffixIndex < suffixes.length - 1) {
+      doubleBytes /= 1024;
+      suffixIndex++;
+    }
+    return '${doubleBytes.toStringAsFixed(1)} ${suffixes[suffixIndex]}';
   }
 
   Widget _buildStatusIndicator(ProxyConfig proxy) {

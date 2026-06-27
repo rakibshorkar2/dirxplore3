@@ -2,18 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'dart:developer' as dev;
+
 class Socks5Protocol {
   static const int version = 0x05;
   
-  static const int authNone = 0x00;
-  static const int authUserPass = 0x02;
-  static const int authNoAcceptable = 0xFF;
-  
-  static const int cmdConnect = 0x01;
-  
-  static const int atypIPv4 = 0x01;
-  static const int atypDomain = 0x03;
-  static const int atypIPv6 = 0x04;
+  static void _log(String message) {
+    dev.log('[SOCKS5] $message', name: 'com.dirxplore.socks5');
+  }
 
   static Future<Socket> connect({
     required String proxyHost,
@@ -24,10 +20,12 @@ class Socks5Protocol {
     String? password,
     Duration timeout = const Duration(seconds: 15),
   }) async {
+    _log('Connecting to $targetHost:$targetPort via $proxyHost:$proxyPort');
     final socket = await Socket.connect(proxyHost, proxyPort, timeout: timeout);
     
     try {
       // 1. Negotiation
+      _log('Negotiating auth methods...');
       final methods = [authNone];
       if (username != null && password != null) {
         methods.add(authUserPass);
@@ -39,9 +37,11 @@ class Socks5Protocol {
       if (negoResponse[0] != version) throw Exception('Invalid SOCKS version');
       
       final selectedMethod = negoResponse[1];
+      _log('Selected auth method: $selectedMethod');
       
       // 2. Authentication
       if (selectedMethod == authUserPass) {
+        _log('Authenticating...');
         if (username == null || password == null) throw Exception('Auth required');
         
         final userBytes = username.codeUnits;
@@ -55,11 +55,13 @@ class Socks5Protocol {
         
         final authResponse = await _readExactly(socket, 2);
         if (authResponse[1] != 0x00) throw Exception('SOCKS Auth failed');
+        _log('Authentication successful');
       } else if (selectedMethod == authNoAcceptable) {
         throw Exception('No acceptable auth methods');
       }
 
       // 3. Target Request (Connect)
+      _log('Requesting connection to target...');
       final hostBytes = targetHost.codeUnits;
       final request = [
         version,
@@ -75,7 +77,10 @@ class Socks5Protocol {
       
       // 4. Response
       final replyHeader = await _readExactly(socket, 4);
-      if (replyHeader[1] != 0x00) throw Exception('SOCKS Connection failed: ${replyHeader[1]}');
+      if (replyHeader[1] != 0x00) {
+        _log('Connection failed with code: ${replyHeader[1]}');
+        throw Exception('SOCKS Connection failed: ${replyHeader[1]}');
+      }
       
       final atyp = replyHeader[3];
       if (atyp == atypIPv4) {
@@ -87,8 +92,10 @@ class Socks5Protocol {
         await _readExactly(socket, 18);
       }
       
+      _log('Successfully tunneled to $targetHost:$targetPort');
       return socket;
     } catch (e) {
+      _log('Error during SOCKS5 handshake: $e');
       socket.destroy();
       rethrow;
     }
