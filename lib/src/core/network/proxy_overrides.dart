@@ -1,13 +1,13 @@
 import 'dart:io';
-import 'package:socks5_proxy/socks_client.dart';
+import 'engine/socks5_protocol.dart';
 
-class GlobalProxyOverrides extends HttpOverrides {
+class GlobalSocks5Overrides extends HttpOverrides {
   final String host;
   final int port;
   final String? username;
   final String? password;
 
-  GlobalProxyOverrides({
+  GlobalSocks5Overrides({
     required this.host,
     required this.port,
     this.username,
@@ -16,22 +16,21 @@ class GlobalProxyOverrides extends HttpOverrides {
 
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    final client = super.createHttpClient(context);
-    
-    final proxySettings = [
-      ProxySettings(
-        InternetAddress.tryParse(host) ?? InternetAddress.anyIPv4,
-        port,
-        username: username,
-        password: password,
-      ),
-    ];
-
-    SocksTCPClient.assignToHttpClient(client, proxySettings);
-    
-    // Auto-allow all certificates for BDIX compatibility
-    client.badCertificateCallback = (cert, host, port) => true;
-    
-    return client;
+    // In a pure SOCKS5 engine, we intercept the low-level connection
+    // This is the production-grade approach to force SOCKS5
+    return super.createHttpClient(context)
+      ..findProxy = null // Disable standard proxy
+      ..connectionFactory = (Uri uri, String? proxyHost, int? proxyPort) async {
+        // Force all traffic through our RFC 1928 SOCKS5 tunnel
+        final socket = await Socks5Protocol.connect(
+          proxyHost: host,
+          proxyPort: port,
+          targetHost: uri.host,
+          targetPort: uri.port,
+          username: username,
+          password: password,
+        );
+        return socket;
+      };
   }
 }
